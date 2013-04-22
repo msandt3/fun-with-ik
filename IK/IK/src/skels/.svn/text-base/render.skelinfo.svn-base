@@ -1,0 +1,37 @@
+dofs {
+	head_len { 0.1765, 0.0000, 10.0000 }
+	toes_len { 0.0700, 0.0000, 10.0000 }
+	hand_len { 0.1500, 0.0000, 10.0000 }
+}
+mass {
+	total_mass { 75 }
+      	head_mass { 6.2683 } 
+      	pelvis_mass { 12.3250 }
+      	spine_mass { 11.1184 }
+      	scapula_mass { 4.1997 }
+      	bicep_mass { 2.5935 }
+      	forearm_mass { 1.1048 }
+      	hand_mass { 0.4701 }
+      	thigh_mass { 10.5072 }
+      	shin_mass { 2.8364 }
+      	foot_mass { 0.9324 }
+}
+primitive {
+	pelvis {<2.8000,1.6000,1.5000>, <0.0000,0.5000,0.0000>, InterHip, PELVIS, pelvis_mass}
+	lfemur {<0.3000,1.0000,0.3000>, <0.0000,-0.5000,0.0000>, Thigh, thigh_mass}
+	ltibia {<0.2500,1.0000,0.2500>, <0.0000,-0.5000,0.0000>, Shin, shin_mass}
+	lfoot {<0.4000,0.2500,1.0000>, <0.0000,0.0000,0.5000>, Foot, CUBE, foot_mass}
+	rfemur {<0.3000,1.0000,0.3000>, <0.0000,-0.5000,0.0000>, Thigh, thigh_mass}
+	rtibia {<0.2500,1.0000,0.2500>, <0.0000,-0.5000,0.0000>, Shin, shin_mass}
+	rfoot {<0.4000,0.2500,1.0000>, <0.0000,0.0000,0.5000>, Foot, CUBE, foot_mass}
+	thorax {<0.5000,1.0000,0.5000>, <0.0000,0.5000,0.0000>, <rotate1, rotate2, rotate3>, ClavHeight, spine_mass}
+	head {<0.700,1.0000,0.6500>, <0.0000,0.5000,0.0000>, head_len, head_mass}
+	lclavicle {<0.600,1.00,0.600>, <0.5000,0.2543,0.0000>, Shoulder, scapula_mass}
+	lhumerus {<0.3500,1.0000,0.3500>, <0.0000,-0.5000,0.0000>, UpperArm, bicep_mass}
+	lradius {<0.3000,1.0000,0.3000>, <0.0000,-0.5000,0.0000>, LowerArm, forearm_mass}
+	lhand {<0.2500,1.0000,0.5000>, <0.0000,-0.5000,0.0000>, hand_len, LHAND, hand_mass}
+	rclavicle {<0.600,1.00,0.600>, <-0.5000,0.2543,0.0000>, Shoulder, scapula_mass}
+	rhumerus {<0.3500,1.0000,0.3500>, <0.0000,-0.5000,0.0000>, UpperArm, bicep_mass}
+	rradius {<0.3000,1.0000,0.3000>, <0.0000,-0.5000,0.0000>, LowerArm, forearm_mass}
+	rhand {<0.2500,1.0000,0.5000>, <0.0000,-0.5000,0.0000>, hand_len, RHAND, hand_mass}
+}

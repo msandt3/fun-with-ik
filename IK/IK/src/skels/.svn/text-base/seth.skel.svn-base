@@ -1,0 +1,301 @@
+
+dofs {
+     pelvis<t-X> { 0.0000, -10.0000, 10.0000 }
+     pelvis<t-Y> { 0.0000, -10.0000, 10.0000 }
+     pelvis<t-Z> { 0.0000, -10.0000, 10.0000 }
+     pelvis<a-Z> { 0.0000, -3.1416, 3.1416 }
+     pelvis<a-X> { 0.0000, -3.1416, 3.1416 }
+     pelvis<a-Y> { 0.0000, -3.1416, 3.1416 }
+     InterHip { 0.1122, 0.0000, 10.0000 }
+     lfemur<a-Z> { 0.0000, -3.1416, 3.1416 }
+     lfemur<a-X> { 0.0000, -3.1416, 3.1416 }
+     lfemur<a-Y> { 0.0000, -3.1416, 3.1416 }
+     Thigh { 0.5046, 0.0000, 10.0000 }
+     ltibia<a-X> { 0.0000, -3.1416, 3.1416 }
+     Shin { 0.3998, 0.0000, 10.0000 }
+     lfoot<a-X> { 0.0000, -3.1416, 3.1416 }
+     lfoot<a-Y> { 0.0000, -3.1416, 3.1416 }
+     InterHip { 0.1122, 0.0000, 10.0000 }
+     rfemur<a-Z> { 0.0000, -3.1416, 3.1416 }
+     rfemur<a-X> { 0.0000, -3.1416, 3.1416 }
+     rfemur<a-Y> { 0.0000, -3.1416, 3.1416 }
+     Thigh { 0.5046, 0.0000, 10.0000 }
+     rtibia<a-X> { 0.0000, -3.1416, 3.1416 }
+     Shin { 0.3998, 0.0000, 10.0000 }
+     rfoot<a-X> { 0.0000, -3.1416, 3.1416 }
+     rfoot<a-Y> { 0.0000, -3.1416, 3.1416 }
+     Foot { 0.2059, 0.0000, 10.0000 }
+     Back { 0.0870, 0.0000, 10.0000 }
+     thorax<a-Z> { 0.0000, -3.1416, 3.1416 }
+     thorax<a-X> { 0.0000, -3.1416, 3.1416 }
+     thorax<a-Y> { 0.0000, -3.1416, 3.1416 }
+     Neck { 0.4967, 0.0000, 10.0000 }
+     head<a-X> { 0.0000, -3.1416, 3.1416 }
+     head<a-Y> { 0.0000, -3.1416, 3.1416 }
+     Head { 0.1413, 0.0000, 10.0000 }
+     ClavHeight { 0.4194, 0.0000, 10.0000 }
+     lclavicle<a-Z> { 0.0000, -3.1416, 3.1416 }
+     Shoulder { 0.1387, 0.0000, 10.0000 }
+     lhumerus<a-Z> { 0.0000, -3.1416, 3.1416 }
+     lhumerus<a-X> { 0.0000, -3.1416, 3.1416 }
+     lhumerus<a-Y> { 0.0000, -3.1416, 3.1416 }
+     UpperArm { 0.3421, 0.0000, 10.0000 }
+     lradius<a-X> { 0.0000, -3.1416, 3.1416 }
+     LowerArm { 0.2798, 0.0000, 10.0000 }
+     lhand<a-Z> { 0.0000, -3.1416, 3.1416 }
+     lhand<a-X> { 0.0000, -3.1416, 3.1416 }
+     Hand { 0.1961, 0.0000, 10.0000 }
+     ClavHeight { 0.4194, 0.0000, 10.0000 }
+     rclavicle<a-Z> { 0.0000, -3.1416, 3.1416 }
+     Shoulder { 0.1387, 0.0000, 10.0000 }
+     rhumerus<a-Z> { 0.0000, -3.1416, 3.1416 }
+     rhumerus<a-X> { 0.0000, -3.1416, 3.1416 }
+     rhumerus<a-Y> { 0.0000, -3.1416, 3.1416 }
+     UpperArm { 0.3421, 0.0000, 10.0000 }
+     rradius<a-X> { 0.0000, -3.1416, 3.1416 }
+     LowerArm { 0.2798, 0.0000, 10.0000 }
+     rhand<a-Z> { 0.0000, -3.1416, 3.1416 }
+     rhand<a-X> { 0.0000, -3.1416, 3.1416 }
+     Hand { 0.1961, 0.0000, 10.0000 }
+}
+
+
+mass {
+	total_mass { 49 } 
+	head_mass { 3.92 } 
+	pelvis_mass { 9.8 } 
+	spine_mass { 4.8608 } 
+	scapula_mass { 2.6264 } 
+	bicep_mass { 1.6219 } 
+	forearm_mass { 0.6909 } 
+	hand_mass { 0.294 } 
+	suitcase_mass { 4.000 } 
+	thigh_mass { 6.5709 } 
+	shin_mass { 1.7738 } 
+	foot_mass { 0.5831 }
+}
+node pelvis { 0 
+     chain { 4
+	   translate { <pelvis<t-X>,pelvis<t-Y>,pelvis<t-Z>> } 
+	   rotate_euler { pelvis<a-Z>, z } rotate_euler { pelvis<a-X>, x } 
+	   rotate_euler { pelvis<a-Y>, y }
+     }
+     primitive { <2.2000,1.0000,1.0000>, <0.0000,0.0000,0.0000>, InterHip, pelvis_mass } 
+
+     node lfemur { 1 
+	  chain { 4 
+		telescope { <1.0000,0.0000,0.0000>, InterHip } 
+		rotate_euler { lfemur<a-Z>, z } 
+		rotate_euler { lfemur<a-X>, x }
+		rotate_euler { lfemur<a-Y>, y }
+	  }
+	  primitive { <0.2500,1.0000,0.2500>, <0.0000,-0.5000,0.0000>, Thigh, thigh_mass } 
+
+	  node ltibia { 2 
+	       chain { 2 
+		     telescope { <0.0000,-1.0000,0.0000>, Thigh } 
+		     rotate_euler { ltibia<a-X>, x }
+	       } 
+	       primitive { <0.2000,1.0000,0.2000>, <0.0000,-0.5000,0.0000>, Shin, shin_mass } 
+
+	       node lfoot { 3 
+		    chain { 3 
+			  telescope { <0.0000,-1.0000,0.0000>, Shin } 
+			  rotate_euler { lfoot<a-X>, x } 
+			  rotate_euler { lfoot<a-Y>, y }
+		    } 
+		    primitive { <0.4000,0.2500,1.0000>, <0.0000,0.0000,0.5000>, Foot, foot_mass } 
+
+		    node lfoot_dummy { 4 
+			 chain { 1 
+			       telescope { <0.0000,0.0000,1.0000>, Foot }
+			 }
+		    }
+	       }
+	  }
+     }
+
+     node rfemur { 5 
+	  chain { 4 
+		telescope { <-1.0000,0.0000,0.0000>, InterHip } 
+		rotate_euler { rfemur<a-Z>, z } 
+		rotate_euler { rfemur<a-X>, x } 
+		rotate_euler { rfemur<a-Y>, y }
+	  } 
+	  primitive { <0.2500,1.0000,0.2500>, <0.0000,-0.5000,0.0000>, Thigh, thigh_mass } 
+
+	  node rtibia { 6 
+	       chain { 2 
+		     telescope { <0.0000,-1.0000,0.0000>, Thigh } 
+		     rotate_euler { rtibia<a-X>, x }
+	       } 
+	       primitive { <0.2000,1.0000,0.2000>, <0.0000,-0.5000,0.0000>, Shin, shin_mass }
+
+	       node rfoot { 7 
+		    chain { 3 
+			  telescope { <0.0000,-1.0000,0.0000>, Shin } 
+			  rotate_euler { rfoot<a-X>, x } 
+			  rotate_euler { rfoot<a-Y>, y }
+		    } 
+		    primitive { <0.4000,0.2500,1.0000>, <0.0000,0.0000,0.5000>, Foot, foot_mass }
+
+		    node rfoot_dummy { 8 
+			 chain { 1 
+			       telescope { <0.0000,0.0000,1.0000>, Foot }
+			 }
+		    }
+	       }
+	  }
+     } 
+
+     node thorax { 9 
+	  chain { 4 
+		telescope { <0.0000,1.0000,-0.5745>, Back } 
+		rotate_euler { thorax<a-Z>, z } 
+		rotate_euler { thorax<a-X>, x } 
+		rotate_euler { thorax<a-Y>, y }
+	  } 
+	  primitive { <0.3000,1.0000,0.3000>, <0.0000,0.5000,0.0000>, Neck, spine_mass } 
+
+	  node head { 10 
+	       chain { 3 
+		     telescope { <0.0000,1.0000,0.0000>, Neck } 
+		     rotate_euler { head<a-X>, x } 
+		     rotate_euler { head<a-Y>, y }
+	       } 
+	       primitive { <0.7000,1.0000,0.6500>, <0.0000,0.5000,0.0000>, Head, head_mass }
+
+	       node head_dummy { 11 
+		    chain { 1 
+			  telescope { <0.0000,1.0000,0.0000>, Head }
+		    }
+	       }
+	  } 
+
+	  node lclavicle { 12 
+	       chain { 2 
+		     telescope { <0.0000,1.0000,0.0000>, ClavHeight }
+		     rotate_euler { lclavicle<a-Z>, z }
+	       } 
+	       primitive { <1.0000,0.5000,0.5000>, <0.5000,0.0000,0.0000>, Shoulder, scapula_mass }
+
+	       node lhumerus { 13 
+		    chain { 4 
+			  telescope { <1.0000,0.0000,0.0000>, Shoulder } 
+			  rotate_euler { lhumerus<a-Z>, z } 
+			  rotate_euler { lhumerus<a-X>, x } 
+			  rotate_euler { lhumerus<a-Y>, y }
+		    } 
+		    primitive { <0.3000,1.0000,0.3000>, <0.0000,-0.5000,0.0000>, UpperArm, bicep_mass } 
+
+		    node lradius { 14 
+			 chain { 2 
+			       telescope { <0.0000,-1.0000,0.0000>, UpperArm } 
+			       rotate_euler { lradius<a-X>, x }
+			 } 
+			 primitive { <0.2500,1.0000,0.2500>, <0.0000,-0.5000,0.0000>, LowerArm, forearm_mass } 
+
+			 node lhand { 15 
+			      chain { 3 
+				    telescope { <0.0000,-1.0000,0.0000>, LowerArm } 
+				    rotate_euler { lhand<a-Z>, z } 
+				    rotate_euler { lhand<a-X>, x }
+			      } 
+			      primitive { <0.2500,1.0000,0.2500>, <0.0000,-0.5000,0.0000>, Hand, hand_mass } 
+
+			      node lhand_dummy { 16 
+				   chain { 1 
+					 telescope { <0.0000,-1.0000,0.0000>, Hand }
+				   }
+			      }
+			 }
+		    }
+	       }
+	  } 
+
+	  node rclavicle { 17 
+	       chain { 2 
+		     telescope { <0.0000,1.0000,0.0000>, ClavHeight } 
+		     rotate_euler { rclavicle<a-Z>, z }
+	       } 
+	       primitive { <1.0000,0.5000,0.5000>, <-0.5000,0.0000,0.0000>, Shoulder, scapula_mass }
+
+	       node rhumerus { 18 
+		    chain { 4 
+			  telescope { <-1.0000,0.0000,0.0000>, Shoulder } 
+			  rotate_euler { rhumerus<a-Z>, z } 
+			  rotate_euler { rhumerus<a-X>, x } 
+			  rotate_euler { rhumerus<a-Y>, y }
+		    } 
+		    primitive { <0.3000,1.0000,0.3000>, <0.0000,-0.5000,0.0000>, UpperArm, bicep_mass }
+
+		    node rradius { 19 
+			 chain { 2 
+			       telescope { <0.0000,-1.0000,0.0000>, UpperArm } 
+			       rotate_euler { rradius<a-X>, x }
+			 } 
+			 primitive { <0.2500,1.0000,0.2500>, <0.0000,-0.5000,0.0000>, LowerArm, forearm_mass }
+
+			 node rhand { 20 
+			      chain { 3 
+				    telescope { <0.0000,-1.0000,0.0000>, LowerArm } 
+				    rotate_euler { rhand<a-Z>, z } 
+				    rotate_euler { rhand<a-X>, x }
+			      } 
+			      primitive { <0.2500,1.0000,0.2500>, <0.0000,-0.5000,0.0000>, Hand, hand_mass }
+
+			      node rhand_dummy { 21 
+				   chain { 1 
+					 telescope { <-0.0106,-1.0000,0.0031>, Hand }
+				   }
+			      }
+			 }
+		    }
+	       }
+	  }
+     }
+}
+
+handles {
+	LFHD { <0.0599,0.2013,0.1370>, 0, head }
+	RFHD { <-0.0618,0.1871,0.1318>, 1, head }
+	LBHD { <0.0653,0.1413,-0.0016>, 2, head }
+	RBHD { <-0.0629,0.1388,0.0031>, 3, head }
+	C7 { <-0.0029,0.4967,-0.0565>, 4, thorax }
+	T10 { <0.0065,0.1500,-0.1148>, 5, thorax }
+	CLAV { <-0.0150,0.4194,0.0993>, 6, thorax }
+	STRN { <-0.0058,0.2865,0.1220>, 7, thorax }
+	RBAC { <-0.1092,0.4092,-0.1239>, 8, thorax }
+	LSHO { <0.1968,0.0236,-0.0246>, 9, lclavicle }
+	LUPA { <0.0278,-0.2248,-0.0553>, 10, lhumerus }
+	LELB { <0.0500,-0.3421,0.0000>, 11, lhumerus }
+	LFRM { <0.0506,-0.1365,-0.0123>, 12, lradius }
+	LWRA { <0.0200,-0.2798,0.0392>, 13, lradius }
+	LWRB { <0.0200,-0.2798,-0.0392>, 14, lradius }
+	LFIN { <0.0502,-0.0708,-0.0178>, 15, lhand }
+	RSHO { <-0.1918,0.0162,-0.0437>, 16, rclavicle }
+	RUPA { <-0.0070,-0.2056,-0.0805>, 17, rhumerus }
+	RELB { <-0.0500,-0.3421,0.0000>, 18, rhumerus }
+	RFRM { <-0.0444,-0.1368,-0.0283>, 19, rradius }
+	RWRA { <-0.0200,-0.2798,0.0414>, 20, rradius }
+	RWRB { <-0.0200,-0.2798,-0.0414>, 21, rradius }
+	RFIN { <-0.0592,-0.0709,-0.0030>, 22, rhand }
+	LFWT { <0.1461,0.0431,0.0552>, 23, pelvis }
+	RFWT { <-0.1507,0.0427,0.0552>, 24, pelvis }
+	LBWT { <0.0856,0.0405,-0.1437>, 25, pelvis }
+	RBWT { <-0.1191,0.0427,-0.1298>, 26, pelvis }
+	LTHI { <-0.0143,-0.2282,0.0759>, 27, lfemur }
+	LKNE { <0.0609,-0.5023,-0.0053>, 28, lfemur }
+	LSHN { <0.0194,-0.2095,0.0250>, 29, ltibia }
+	LANK { <0.0500,-0.3998,-0.0108>, 30, ltibia }
+	LHEE { <0.0013,-0.1034,-0.0313>, 31, lfoot }
+	LTOE { <0.0000,0.0000,0.1866>, 32, lfoot }
+	LMT5 { <0.0675,0.0000,0.1251>, 33, lfoot }
+	RTHI { <-0.0084,-0.2365,0.0815>, 34, rfemur }
+	RKNE { <-0.0659,-0.4956,-0.0116>, 35, rfemur }
+	RSHN { <-0.0363,-0.1952,0.0261>, 36, rtibia }
+	RANK { <-0.0500,-0.3998,-0.0065>, 37, rtibia }
+	RHEE { <0.0079,-0.0860,-0.0396>, 38, rfoot }
+	RTOE { <0.0000,0.0000,0.1846>, 39, rfoot }
+	RMT5 { <-0.0627,0.0000,0.1251>, 40, rfoot }
+}
