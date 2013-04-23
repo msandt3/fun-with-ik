@@ -80,3 +80,26 @@ Mat4d Translate::GetTransform()
   
   return m;
 }
+
+Mat4d Translate::GetDeriv(int dof){
+	// 0 - x | 1 - y | 2 - z
+	Mat4d m = vl_I;
+	switch(dof){
+		case 0:
+			m[0][3] = 1;
+			m[1][3] = 0;
+			m[2][3] = 0;
+			m[3][3] = 1;
+		case 1:
+			m[0][3] = 0;
+			m[1][3] = 1;
+			m[2][3] = 0;
+			m[3][3] = 1;
+		case 2:
+			m[0][3] = 0;
+			m[1][3] = 0;
+			m[2][3] = 1;
+			m[3][3] = 1;
+	}
+	return m;
+}

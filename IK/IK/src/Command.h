@@ -11,5 +11,7 @@ void LoadModel(void*);
 void LoadC3d(void*);
 void Exit(void*);
 void Solution(void*);
+
+Vec3d CalculateC();
 #endif
 

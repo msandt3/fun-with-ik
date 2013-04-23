@@ -47,10 +47,12 @@ class Translate : public Transform
   // from Transform
   virtual void Apply(); 
   virtual Mat4d GetTransform();
+  virtual Mat4d GetDeriv(int dof);
         
   virtual bool IsDof() { return (mDofs[0]!= 0); }
   virtual int GetDofCount() { return 3; }
   virtual Dof* GetDof( int dof ) { return mDofs[dof]; }
+  
 
   double Get( int index ) { return mOffset[index]; }
   void Set( int index, double value ) { mOffset[index] = value; }

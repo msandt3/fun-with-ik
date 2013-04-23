@@ -68,6 +68,8 @@ void Solution(void *v)
 {
     cout << "TODO: Solve inverse kinematics problem" << endl;
     bool test = UI->mData->mSelectedModel->mLimbs[0]->mTransforms[0]->IsDof();
+
+	Vec3d c = CalculateC();
 }
 
 void Exit(void *v)
@@ -101,4 +103,10 @@ void LoadC3d(void *v)
   UI->InitControlPanel();
   UI->mGLWindow->mShowConstraints = true;
   UI->mShowConstr_but->value(1);
+}
+Vec3d CalculateC(){
+	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
+	Vec3d pBar=UI->mData->mSelectedModel-> mOpenedC3dFile->GetMarkerPos(0,0); 
+	Vec3d temp=mark->mGlobalPos-pBar;
+	return temp;
 }
