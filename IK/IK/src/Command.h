@@ -13,5 +13,8 @@ void Exit(void*);
 void Solution(void*);
 
 Vec3d CalculateC();
+TMat computeJ(TMat Jacobian);
+
+float CalculateFQ(Vec3d c);
 #endif
 

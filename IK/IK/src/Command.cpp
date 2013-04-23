@@ -68,8 +68,26 @@ void Solution(void *v)
 {
     cout << "TODO: Solve inverse kinematics problem" << endl;
     bool test = UI->mData->mSelectedModel->mLimbs[0]->mTransforms[0]->IsDof();
+	cout << test;
 
+	TMat jacobian = TMat();
+	jacobian.SetSize(3,9);
+	//Calculate C
 	Vec3d c = CalculateC();
+	float error = 0.1f;
+
+	while(CalculateFQ(c) < error){
+		//Calculate Jacobian
+		computeJ(jacobian);
+		//Calculate Jacobian Transpose
+		TMat transposeJ=trans(jacobian);
+		//Calculate partial F/ partial q
+		Vecd pFpq = 2*(transposeJ*c);
+		cout << pFpq;
+		//update q term
+		c = CalculateC();
+	}
+		
 }
 
 void Exit(void *v)
@@ -109,4 +127,24 @@ Vec3d CalculateC(){
 	Vec3d pBar=UI->mData->mSelectedModel-> mOpenedC3dFile->GetMarkerPos(0,0); 
 	Vec3d temp=mark->mGlobalPos-pBar;
 	return temp;
+}
+
+TMat computeJ(TMat Jacobian){
+	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
+	TransformNode* node=UI->mData->mSelectedModel->mLimbs[mark->mNodeIndex];
+	Mat4d parent=node->mParentTransform;
+	Mat4d T=node->mTransforms[0]->GetTransform();
+	Mat4d partRpartQ=node->mTransforms[1]->GetDeriv(0);
+	Mat4d Rq= node->mTransforms[2]->GetTransform();
+	Vec4d offset=Vec4d(mark->mOffset,1);
+	Vec4d Ji=parent*T*partRpartQ*Rq*offset;
+	int column=node->mTransforms[1]->GetDof(0)->mId;
+	Jacobian[column]=Ji;
+	return Jacobian;
+}
+
+float CalculateFQ(Vec3d c){
+	float length = len(c);
+	float error = length * length;
+	return error;
 }
