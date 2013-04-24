@@ -70,8 +70,7 @@ void Solution(void *v)
     bool test = UI->mData->mSelectedModel->mLimbs[0]->mTransforms[0]->IsDof();
 	cout << test;
 
-	TMat jacobian = TMat();
-	jacobian.SetSize(3,9);
+	TMat jacobian = TMat(3,9,1);
 	//Calculate C
 	Vec3d c = CalculateC();
 	float error = 0.1f;
