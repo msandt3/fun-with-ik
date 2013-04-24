@@ -85,6 +85,7 @@ void Solution(void *v)
 		Vecd pFpq = 2*(transposeJ*c);
 		cout << pFpq;
 		//update q term
+		//UI->mdaa->mselectedmodel->SetDofs()
 		c = CalculateC();
 	}
 		
@@ -128,7 +129,7 @@ Vec3d CalculateC(){
 	Vec3d temp=mark->mGlobalPos-pBar;
 	return temp;
 }
-
+/**
 TMat computeJ(TMat Jacobian){
 	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
 	TransformNode* node=UI->mData->mSelectedModel->mLimbs[mark->mNodeIndex];
@@ -140,6 +141,81 @@ TMat computeJ(TMat Jacobian){
 	Vec4d Ji=parent*T*partRpartQ*Rq*offset;
 	int column=node->mTransforms[1]->GetDof(0)->mId;
 	Jacobian[column]=Ji;
+	return Jacobian;
+}
+**/
+
+TMat computeJ(TMat Jacobian){
+
+	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
+	//node we're computing partials for
+	TransformNode* node = UI->mData->mSelectedModel->mLimbs[mark->mNodeIndex];
+	//remaining transformations
+	
+
+	int NeedOffset = 1;
+	Vec4d Ji;
+	Vec4d u;
+
+
+	/** While there are still nodes to process **/
+	while(node != NULL){
+		Mat4d parent = node->mParentTransform;
+
+		//loop over the transforms for this node
+		for(int trans=0; trans<node->mTransforms.size(); trans++){
+			
+			
+			Transform* current = node->mTransforms[trans];
+
+			//determine if the current transform is a dof
+			if(current->IsDof()){
+
+				//loop over the DOF's in the transform
+				for(int dof=0; dof<current->GetDofCount(); dof++){
+					//compute partial derivative
+					Mat4d partial = current->GetDeriv(dof);
+
+					Mat4d Jim = parent;
+					Mat4d um = parent;
+
+					//compute jacobian entry & u (as matrices)
+					for(int i=0; i<node->mTransforms.size(); i++){
+						
+						if(i == trans){
+							Jim *= partial;
+						}else{
+							Jim *= node->mTransforms[i]->GetTransform();
+						}
+						um *= node->mTransforms[i]->GetTransform();
+					}
+
+					//multiply by offset -- only if at the foot joint
+					if(NeedOffset == 1){
+						Ji = Jim * Vec4d(mark->mOffset,1);
+						u = um * Vec4d(mark->mOffset,1);
+					}
+					else{
+						Ji = Jim * u;
+					}
+
+
+
+					//compute row & column of entry
+					int column = current->GetDof(dof)->mId;
+					//set jacobian column
+					for(int i=0; i<3; i++){
+						Jacobian[i][column] = Ji[i];
+					}
+				}//end DOF loop
+
+			}//end dof check
+
+		}//end transform loop
+		NeedOffset = 0;
+		node = node->mParentNode;
+	}//end while
+
 	return Jacobian;
 }
 
