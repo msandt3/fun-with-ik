@@ -73,21 +73,36 @@ void Solution(void *v)
 	TMat jacobian = TMat(3,9,1);
 	//Calculate C
 	Vec3d c = CalculateC();
-	float error = 0.1f;
+	double error = 0.1f;
+	double alpha = 0.01f;
 
 	while(CalculateFQ(c) < error){
+
+
 		//Calculate Jacobian
 		computeJ(jacobian);
+
+
 		//Calculate Jacobian Transpose
 		TMat transposeJ=trans(jacobian);
+
+
 		//Calculate partial F/ partial q
 		Vecd pFpq = 2*(transposeJ*c);
-		cout << pFpq;
+		cout << "PFPQ" << pFpq;
+
+
 		//update q term
-		//UI->mdaa->mselectedmodel->SetDofs()
-		c = CalculateC();
-	}
+		for(int i=0; i<pFpq.Elts(); i++){
+			double qOld = UI->mData->mSelectedModel->mDofList.GetDof(i);
+			//subtract partial from q
+			double qNew = qOld - alpha * pFpq[i];
+			//set the new q value
+			UI->mData->mSelectedModel->mDofList.SetDof(i,qNew);
+		}
 		
+		c = CalculateC();
+	}	
 }
 
 void Exit(void *v)
@@ -128,21 +143,6 @@ Vec3d CalculateC(){
 	Vec3d temp=mark->mGlobalPos-pBar;
 	return temp;
 }
-/**
-TMat computeJ(TMat Jacobian){
-	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
-	TransformNode* node=UI->mData->mSelectedModel->mLimbs[mark->mNodeIndex];
-	Mat4d parent=node->mParentTransform;
-	Mat4d T=node->mTransforms[0]->GetTransform();
-	Mat4d partRpartQ=node->mTransforms[1]->GetDeriv(0);
-	Mat4d Rq= node->mTransforms[2]->GetTransform();
-	Vec4d offset=Vec4d(mark->mOffset,1);
-	Vec4d Ji=parent*T*partRpartQ*Rq*offset;
-	int column=node->mTransforms[1]->GetDof(0)->mId;
-	Jacobian[column]=Ji;
-	return Jacobian;
-}
-**/
 
 TMat computeJ(TMat Jacobian){
 
