@@ -82,7 +82,7 @@ void Solution(void *v)
 	cout << " c: " << c<<"\n";
  
 	solve=true;
-	while(CalculateFQ(c) < error){
+	//while(CalculateFQ(c) < error){
 		//Calculate Jacobian
 		Jacobian.MakeZero();
 		computeJ();
@@ -101,7 +101,7 @@ void Solution(void *v)
 		}
 		c = CalculateC();
 		cout << " c: " << c<<"\n";
-	}
+	//}
 }
 void Exit(void *v)
 {
@@ -154,8 +154,8 @@ Vec3d CalculateC(){
 	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
 	pBar=UI->mData->mSelectedModel-> mOpenedC3dFile->GetMarkerPos(0,0); 
 	handlePos=mark->mGlobalPos;
-	//Vec3d temp=mark->mGlobalPos-pBar;
-	Vec3d temp=pBar-mark->mGlobalPos;
+	Vec3d temp=mark->mGlobalPos-pBar;
+	//Vec3d temp=pBar-mark->mGlobalPos;
 	return temp;
 }
  
