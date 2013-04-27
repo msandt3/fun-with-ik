@@ -33,8 +33,9 @@ int readSkelFile( FILE* file, ArticulatedBody* skel );
 extern RealTimeIKUI *UI;
 bool solve = false;
 Vec3d c=Vec3d();
-TMat Jacobian = TMat(3,9);
- 
+TMat Jacobian = TMat();
+extern vector<Vec3d> handles;
+vector<Vec3d> cVals= vector<Vec3d>();
 void LoadModel(void *v)
 {
   char *params = (char*)v;
@@ -68,10 +69,39 @@ void LoadModel(void *v)
  
 void Solution(void *v)
 {
+	Jacobian.SetSize(3,UI->mData->mSelectedModel->GetDofCount());
     //cout << "TODO: Solve inverse kinematics problem" << endl;
-    bool test = UI->mData->mSelectedModel->mLimbs[0]->mTransforms[0]->IsDof();
+    //bool test = UI->mData->mSelectedModel->mLimbs[0]->mTransforms[0]->IsDof();
  
 	Jacobian.MakeZero();
+	solve=true;
+	for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
+		Vec3d pos=UI->mData->mSelectedModel->mHandleList[handle]->mGlobalPos;
+
+
+		//below -- just for drawing
+		handles.push_back(pos);
+		//calculate c for handle
+		CalculateC(handle);
+
+		//if fq > error
+		double FQ = CalculateFQ(handle);
+		if(FQ > 0.0025){
+			//Calculate Jacobian Entry for this handle
+			ComputeJ(handle);
+			//cout << "Jacobian: " << Jacobian;
+			TMat transposeJ = trans(Jacobian);
+			for(int j=0;j<cVals.size();j++){
+				transposeJ*cVals[j];
+			}
+			transposeJ=2*transposeJ;
+		}
+		
+	}
+	//compute pFpq
+	//compute new q
+	//apply
+	/**
 	//Calculate C
 	CalculateC();
 	double error = 0.01;
@@ -101,6 +131,7 @@ void Solution(void *v)
 	//}
 	if(FQ > 0.0025)
 		Fl::add_timeout(0.001,Solution);
+	**/
 }
 void Exit(void *v)
 {
@@ -134,17 +165,18 @@ void LoadC3d(void *v)
   UI->mGLWindow->mShowConstraints = true;
   UI->mShowConstr_but->value(1);
 }
- 
+ void CalculateC(int handle){
+	 Marker* mark = UI->mData->mSelectedModel->mHandleList[handle];
+	 Vec3d pBar = UI->mData->mSelectedModel->mOpenedC3dFile->GetMarkerPos(0,handle);
+	 cVals.push_back(mark->mGlobalPos-pBar);
+ }
  void CalculateC(){
 	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
 	Vec3d pBar=UI->mData->mSelectedModel-> mOpenedC3dFile->GetMarkerPos(0,0);
 	Vec3d handlePos=mark->mGlobalPos;
 	c=mark->mGlobalPos-pBar;
-	
 }
 void computeJ(){
- 
- 
 	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
 	//node we're computing partials for
 	TransformNode* node = UI->mData->mSelectedModel->mLimbs[mark->mNodeIndex];
@@ -153,7 +185,6 @@ void computeJ(){
 	Vec4d Ji;
 	Vec4d u = Vec4d(1,1,1,1);
 	Mat4d um = Mat4d(vl_1);
- 
 	/** While there are still nodes to process **/
 	while(node != NULL){
 		Mat4d parent = node->mParentTransform;
@@ -224,8 +255,97 @@ void computeJ(){
 		node = node->mParentNode;
 	}//end while
 }
+
+void ComputeJ(int handle){
+
+	Marker* mark=UI->mData->mSelectedModel->mHandleList[handle];
+	TransformNode* node = UI->mData->mSelectedModel->mLimbs[mark->mNodeIndex];
+
+
+	int NeedOffset = 1;
+	Vec4d Ji;
+	Vec4d u = Vec4d(1,1,1,1);
+	Mat4d um = Mat4d(vl_1);
+	/** While there are still nodes to process **/
+	while(node != NULL){
+		Mat4d parent = node->mParentTransform;
+		//loop over the transforms for this node
+ 
+ 
+		for(int trans=0; trans<node->mTransforms.size(); trans++){
+			Transform* current = node->mTransforms[trans];
+			
+ 
+			//determine if the current transform is a dof
+			if(current->IsDof()){
+				//loop over the DOF's in the transform
+ 
+ 
+				for(int dof=0; dof<current->GetDofCount(); dof++){
+					//compute partial derivative
+					Mat4d partial = current->GetDeriv(dof);
+					//cout << "Deriv is " << partial << "\n";
+					Mat4d Jim = parent;
+
+ 
+ 
+					//compute jacobian entry & u (as matrices)
+					for(int i=0; i<node->mTransforms.size(); i++){
+						if(i == trans){
+							Jim *= partial;
+						}else{
+							Jim *= node->mTransforms[i]->GetTransform();
+						}
+						um *= node->mTransforms[i]->GetTransform();
+					}
+ 
+					
+					//multiply by offset -- only if at the foot joint
+					if(NeedOffset == 1){
+						Ji = Jim * Vec4d(mark->mOffset,1);
+						u = um * Vec4d(mark->mOffset,1);
+					}
+					else{
+						u = u * um;
+						Ji = Jim * u;
+					}
+ 
+ 
+					//compute row & column of entry
+					int column = current->GetDof(dof)->mId;
+ 
+					//set jacobian column
+					for(int j=0; j<3; j++){\
+						//Jacobian[j][column] = Ji[j];
+						Jacobian[j][column] = Ji[j];
+					}
+ 
+
+					
+				}//end DOF loop
+ 
+ 
+ 
+			}//end dof check
+ 
+ 
+		}//end transform loop
+ 
+ 
+		NeedOffset = 0;
+		node = node->mParentNode;
+	}//end while
+
+
+}
 double CalculateFQ(){
 	double length = len(c);
+	double error = length * length;
+	return error;
+}
+
+double CalculateFQ(int handle){
+	double length = len(cVals[handle]);
 	double error = length * length;
 	return error;
 }

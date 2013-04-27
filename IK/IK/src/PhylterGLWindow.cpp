@@ -22,7 +22,11 @@
 
 extern RealTimeIKUI *UI;
 
-
+vector<Vec3d>handles=vector<Vec3d>();
+extern vector<Vec3d>cVals;
+extern bool solve;
+void drawHandles();
+void drawC();
 void LightInit()
 {
   static float ambient[]             = {0.2, 0.2, 0.2, 1.0};
@@ -136,7 +140,10 @@ void Phylter_Fl_Gl_Window::draw()
 
   Origin o;
   o.Draw();
-  
+  if(solve){
+	  drawHandles();
+	  drawC();
+  }
   if(mShowViz){
     for(int i = 0; i < UI->mData->mModels.size(); i++)
       UI->mData->mModels[i]->DrawVisualization();
@@ -356,4 +363,33 @@ void Phylter_Fl_Gl_Window::DrawC3dMarkers()
     glPopMatrix();
   }
 }
+void drawHandles(){
+	int nHandle = UI->mData->mSelectedModel->mOpenedC3dFile->GetHandleCount();
+	
+	for(int i=0;i<handles.size();i++){
+		glPushMatrix();
+		Sphere temp(GREEN, 0.0);
+		
+		Vec3d pos = Vec3d(handles[i][0],handles[i][1],handles[i][2]);
+		glTranslated(pos[0], pos[1], pos[2]);
+		glScaled(0.03, 0.03, 0.03);
+    temp.Draw();
+    glPopMatrix();
+	}
+}
+void drawC(){
+	
+	int currFrame = UI->mFrameCounter_cou->value();
+	for(int i=0;i<cVals.size();i++){
+		Vec3d pos = UI->mData->mSelectedModel->mOpenedC3dFile->GetMarkerPos(currFrame, i);
+		//Vec3d pos = Vec3d(handles[i][0],handles[i][1],handles[i][2]);
+		Vec3d cPos=Vec3d(cVals[i][0],cVals[i][1],cVals[i][2]);
+		glBegin(GL_LINES);
+		glVertex3f(pos[0], pos[1], pos[2]); // object coord
+		glVertex3f(pos[0]+cPos[0],pos[1]+ cPos[1], pos[2]+cPos[2]); // ending point of the line
+		glEnd( );
+	
 
+	
+	}
+}

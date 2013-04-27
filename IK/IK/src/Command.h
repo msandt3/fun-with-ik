@@ -14,4 +14,8 @@ void LoadC3d(void*);
 void Exit(void*);
 void Solution(void*);
 double CalculateFQ();
+
+void CalculateC(int handle);
+double CalculateFQ(int handle);
+void ComputeJ(int handle);
 #endif
