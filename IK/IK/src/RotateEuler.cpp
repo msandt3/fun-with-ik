@@ -156,7 +156,7 @@ Mat4d RotateEuler::GetDeriv(int dof){
 	switch(axis)
     {	
 		case 0:
-			m[0][0] = 1;
+			m[0][0] = 0;
 			m[0][1] = 0;
 			m[0][2] = 0;
  
@@ -176,7 +176,7 @@ Mat4d RotateEuler::GetDeriv(int dof){
 		  m[0][2] = cosAngle;
  
 		  m[1][0] = 0;
-		  m[1][1] = 1;
+		  m[1][1] = 0;
 		  m[1][2] = 0;
 			
 
@@ -197,7 +197,7 @@ Mat4d RotateEuler::GetDeriv(int dof){
 
 		  m[2][0] = 0;
 		  m[2][1] = 0;
-		  m[2][2] = 1;
+		  m[2][2] = 0;
 		break;
     }
 	m[0][3] = 0.0;
@@ -206,7 +206,7 @@ Mat4d RotateEuler::GetDeriv(int dof){
 	m[3][0] = 0;			
 	m[3][1] = 0;
 	m[3][2] = 0;			
-	m[3][3] = 1;
+	m[3][3] = 0;
 
 	return m;
 }
