@@ -15,7 +15,8 @@ void Exit(void*);
 void Solution(void*);
 double CalculateFQ();
 
-void CalculateC(int handle);
+Vec3d CalculateC(int handle);
 double CalculateFQ(int handle);
+bool KeepGoing();
 void ComputeJ(int handle);
 #endif

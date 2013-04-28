@@ -364,6 +364,7 @@ void Phylter_Fl_Gl_Window::DrawC3dMarkers()
   }
 }
 void drawHandles(){
+	/**
 	int nHandle = UI->mData->mSelectedModel->mOpenedC3dFile->GetHandleCount();
 	
 	for(int i=0;i<handles.size();i++){
@@ -376,9 +377,10 @@ void drawHandles(){
     temp.Draw();
     glPopMatrix();
 	}
+	**/
 }
 void drawC(){
-	
+	/**
 	int currFrame = UI->mFrameCounter_cou->value();
 	for(int i=0;i<cVals.size();i++){
 		Vec3d pos = UI->mData->mSelectedModel->mOpenedC3dFile->GetMarkerPos(currFrame, i);
@@ -392,4 +394,5 @@ void drawC(){
 
 	
 	}
+	**/
 }

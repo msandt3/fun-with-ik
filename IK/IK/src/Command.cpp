@@ -32,10 +32,14 @@ int readSkelFile( FILE* file, ArticulatedBody* skel );
  
 extern RealTimeIKUI *UI;
 bool solve = false;
+
 Vec3d c=Vec3d();
 TMat Jacobian = TMat();
 extern vector<Vec3d> handles;
 vector<Vec3d> cVals= vector<Vec3d>();
+
+double alpha = 0.02;
+
 void LoadModel(void *v)
 {
   char *params = (char*)v;
@@ -69,69 +73,38 @@ void LoadModel(void *v)
  
 void Solution(void *v)
 {
-	Jacobian.SetSize(3,UI->mData->mSelectedModel->GetDofCount());
-    //cout << "TODO: Solve inverse kinematics problem" << endl;
-    //bool test = UI->mData->mSelectedModel->mLimbs[0]->mTransforms[0]->IsDof();
- 
+	Jacobian.SetSize(3,UI->mData->mSelectedModel->GetDofCount()); 
 	Jacobian.MakeZero();
+
 	solve=true;
-	for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
-		Vec3d pos=UI->mData->mSelectedModel->mHandleList[handle]->mGlobalPos;
 
+	if(KeepGoing()){
+		cout << "Optimal Solution Not Reached\n";
+		//loop over the handles
+		Vecd pFpq = Vecd(UI->mData->mSelectedModel->GetDofCount());
+		for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
+			//reset jacobian so we dont add several iterations worth of data
+			Jacobian.MakeZero();
 
-		//below -- just for drawing
-		handles.push_back(pos);
-		//calculate c for handle
-		CalculateC(handle);
+			//compute the jacobian for handle i
+			ComputeJ(handle); //Ji is now in Jacobian
 
-		//if fq > error
-		double FQ = CalculateFQ(handle);
-		if(FQ > 0.0025){
-			//Calculate Jacobian Entry for this handle
-			ComputeJ(handle);
-			//cout << "Jacobian: " << Jacobian;
-			TMat transposeJ = trans(Jacobian);
-			for(int j=0;j<cVals.size();j++){
-				transposeJ*cVals[j];
-			}
-			transposeJ=2*transposeJ;
+			//compute the transpose for handle i
+			TMat Jti = trans(Jacobian); // Jti is transpose of jacobian at entry i
+
+			//dFdQ = dFdq + 2 * (Jti*Ci)
+			pFpq += (Jti * CalculateC(handle));
 		}
-		
-	}
-	//compute pFpq
-	//compute new q
-	//apply
-	/**
-	//Calculate C
-	CalculateC();
-	double error = 0.01;
-	double alpha = 0.01;
-	double FQ = CalculateFQ();
- 
-	solve=true;
-	//while(FQ > error){
-		//Calculate Jacobian
-		//Jacobian.MakeZero();
-		computeJ();
-		//Calculate Jacobian Transpose
-		TMat transposeJ=trans(Jacobian);
-		//Calculate partial F/ partial q
-		Vecd pFpq = 2*(transposeJ*c);
-		Vecd qNew = Vecd(9);
-		//update q term
+		pFpq *= 2;
+		//apply dFdqJacobian.MakeZero();
+		Vecd qNew = Vecd(pFpq.Elts());
 		for(int i=0; i<pFpq.Elts(); i++){
 			double qOld = UI->mData->mSelectedModel->mDofList.GetDof(i);
-			//subtract partial from q
 			qNew[i] = qOld - alpha * pFpq[i];
-			//set the new q value
 		}
 		UI->mData->mSelectedModel->SetDofs(qNew);
-		CalculateC();
-		FQ = CalculateFQ();
-	//}
-	if(FQ > 0.0025)
 		Fl::add_timeout(0.001,Solution);
-	**/
+	}
 }
 void Exit(void *v)
 {
@@ -165,10 +138,11 @@ void LoadC3d(void *v)
   UI->mGLWindow->mShowConstraints = true;
   UI->mShowConstr_but->value(1);
 }
- void CalculateC(int handle){
+ Vec3d CalculateC(int handle){
 	 Marker* mark = UI->mData->mSelectedModel->mHandleList[handle];
 	 Vec3d pBar = UI->mData->mSelectedModel->mOpenedC3dFile->GetMarkerPos(0,handle);
-	 cVals.push_back(mark->mGlobalPos-pBar);
+	 return mark->mGlobalPos-pBar;
+	 //cVals.push_back(mark->mGlobalPos-pBar);
  }
  void CalculateC(){
 	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
@@ -345,7 +319,16 @@ double CalculateFQ(){
 }
 
 double CalculateFQ(int handle){
-	double length = len(cVals[handle]);
+	double length = len(CalculateC(handle));
 	double error = length * length;
 	return error;
+}
+
+bool KeepGoing(){
+	//loop over handles, if there exists one that needs to be moved we keep going
+	for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
+		if(CalculateFQ(handle) > 0.0025)
+			return true;
+	}
+	return false;
 }
