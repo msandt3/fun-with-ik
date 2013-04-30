@@ -39,6 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>C:\Users\bedmonds3\Desktop\fun-with-ik\external\vl-1.3.2\vl-1.3.2;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -55,7 +56,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../../external/fltk-1.3.x-r7704/fltk-1.3.x-r7704/lib;../../external/vl-1.3.2/vl-1.3.2/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\bedmonds3\Desktop\fun-with-ik\external\vl-1.3.2\vl-1.3.2;../../external/fltk-1.3.x-r7704/fltk-1.3.x-r7704/lib;../../external/vl-1.3.2/vl-1.3.2/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>comctl32.lib;glu32.lib;opengl32.lib;vl.lib;fltkd.lib;fltkgld.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

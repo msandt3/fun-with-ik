@@ -16,6 +16,7 @@ void Solution(void*);
 double CalculateFQ();
 
 Vec3d CalculateC(int handle);
+Vecd CalculateCVec(int handle);
 double CalculateFQ(int handle);
 bool KeepGoing();
 void ComputeJ(int handle);

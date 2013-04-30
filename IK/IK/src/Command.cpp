@@ -75,42 +75,51 @@ void Solution(void *v)
 {
 	Jacobian.SetSize(UI->mData->mSelectedModel->GetHandleCount() * 3,UI->mData->mSelectedModel->GetDofCount()); 
 	Jacobian.MakeZero();
+	//cout << "Initial Jacobian " << Jacobian << "\n";
 
 	solve=true;
-	cout << "FQ " << CalculateFQ() << "\n";
-	if(CalculateFQ() > 0.0025){
-		cout << "Entering loop \n";
+	//cout << "FQ " << CalculateFQ() << "\n";
+	if(CalculateFQ() > 100){
 		//loop over the handles
 		Vecd pFpq = Vecd(UI->mData->mSelectedModel->GetDofCount());
+		pFpq.MakeZero();
+
+
 		for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
+			//cout << "Operating on handle " << handle << "\n";
 			//reset jacobian so we dont add several iterations worth of data
 			Jacobian.MakeZero();
 
 			//compute the jacobian for handle i
 			ComputeJ(handle); //Ji is now in Jacobian
-
-			cout << "J " << Jacobian << "\n";
+			//cout << "Jacobian computed \n";
 
 			//compute the transpose for handle i
 			TMat Jti = trans(Jacobian); // Jti is transpose of jacobian at entry i
+			//cout << "Jacobian transposed ";
 
 			//dFdQ = dFdq + (Jti*Ci)
-			pFpq += (Jti * CalculateC(handle));
+			//cout << "Jacobian " << Jti << "\n";
+			//cout << "C " << CalculateC(handle) << "\n";
+			pFpq += (Jti * CalculateCVec(handle));
+			//cout << "Jacobian summed ";
 		}
 		pFpq *= 2;
-		cout << "Gradient " << pFpq << "\n";
+
+
 		Vecd qNew = Vecd(pFpq.Elts());
-		cout << "Q: ";
+		//cout << "Q: ";
 		for(int i=0; i<pFpq.Elts(); i++){
 			double qOld = UI->mData->mSelectedModel->mDofList.GetDof(i);
-			cout << qOld << ", ";
+			//cout << qOld << ", ";
 			qNew[i] = qOld - alpha * pFpq[i];
 		}
-		cout << "\n";
-		cout << " Q new " << qNew << "\n";
+		//cout << "\n";
+		//cout << " Q new " << qNew << "\n";
 		UI->mData->mSelectedModel->SetDofs(qNew);
 		Fl::add_timeout(0.001,Solution);
 	}
+	//cout << "Finished solving \n";
 }
 void Exit(void *v)
 {
@@ -150,6 +159,16 @@ void LoadC3d(void *v)
 	 return mark->mGlobalPos-pBar;
 	 //cVals.push_back(mark->mGlobalPos-pBar);
  }
+
+ Vecd CalculateCVec(int handle){
+	 Vecd ret = Vecd(UI->mData->mSelectedModel->GetHandleCount() * 3);
+	 Vec3d cvals = CalculateC(handle);
+	 for(int i=0; i<3; i++){
+		 ret[3*handle + i] = cvals[i]; 
+	 }
+	 return ret;
+
+ }
  void CalculateC(){
 	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
 	Vec3d pBar=UI->mData->mSelectedModel-> mOpenedC3dFile->GetMarkerPos(0,0);
@@ -169,7 +188,7 @@ void computeJ(){
 	while(node != NULL){
 		Mat4d parent = node->mParentTransform;
 		//loop over the transforms for this node
- 
+		cout << "Operating on node " << node->mName << "\n";
  
 		for(int trans=0; trans<node->mTransforms.size(); trans++){
 			Transform* current = node->mTransforms[trans];
@@ -241,14 +260,40 @@ void ComputeJ(int handle){
 
 
 	int NeedOffset = 1;
-	Vec4d Ji;
-	Vec4d u = Vec4d(1,1,1,1);
-	Mat4d um = Mat4d(vl_1);
+	Vec4d u = Vec4d(mark->mOffset,1);
 
-	/** While there are still nodes to process **/
 	while(node != NULL){
 		Mat4d parent = node->mParentTransform;
-		//cout << "using node " << node->mName << "\n";
+
+		for(int trans=0; trans<node->mTransforms.size(); trans++){
+			Transform* current = node->mTransforms[trans];
+
+			if(current->IsDof()){
+				for(int dof = 0; dof < current->GetDofCount(); dof++){
+					Mat4d Ji = parent;
+					for(int i=0; i<node->mTransforms.size(); i++){
+						if(i == trans){
+							Ji *= current->GetDeriv(dof);
+						}
+						else
+							Ji *= node->mTransforms[i]->GetTransform();
+					}//end inner transform
+
+					Vec4d Jentry = Ji * u;
+					int column = current->GetDof(dof)->mId;
+					for(int j=0; j<3; j++){
+						Jacobian[(3*handle) + j][column] = Jentry[j];
+					}//end assigning jacobian row
+				}//end dof loop
+			}//end dof check
+		}//end outer transform loop
+
+		u *= node->mCurrentTransform;
+		node = node->mParentNode;
+	}
+	/**
+	while(node != NULL){
+		Mat4d parent = node->mParentTransform;
 		//loop over the transforms for this node
 		for(int trans=0; trans<node->mTransforms.size(); trans++){
 			Transform* current = node->mTransforms[trans];
@@ -262,6 +307,10 @@ void ComputeJ(int handle){
 					Mat4d partial = current->GetDeriv(dof);
 					//cout << "Deriv is " << partial << "\n";
 					Mat4d Jim = parent;
+
+
+
+
 					//compute jacobian entry & u (as matrices)
 					for(int i=0; i<node->mTransforms.size(); i++){
 						if(i == trans){
@@ -310,6 +359,7 @@ void ComputeJ(int handle){
 		node = node->mParentNode;
 	}//end while
 
+	**/
 
 }
 double CalculateFQ(){
