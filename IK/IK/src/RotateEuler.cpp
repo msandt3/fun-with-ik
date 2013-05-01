@@ -140,6 +140,7 @@ Mat4d RotateEuler::GetTransform()
 
 Mat4d RotateEuler::GetDeriv(int dof){
 	Mat4d m;
+	m.MakeZero();
 	int axis;
 	double cosAngle;
 	double sinAngle;

@@ -84,6 +84,7 @@ Mat4d Translate::GetTransform()
 Mat4d Translate::GetDeriv(int dof){
 	// 0 - x | 1 - y | 2 - z
 	Mat4d m = vl_I;
+	m.MakeZero();
 	switch(dof){
 		case 0:
 			m[0][3] = 1;

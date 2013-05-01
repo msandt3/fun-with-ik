@@ -76,22 +76,19 @@ void LoadModel(void *v)
 void Solution(void *v)
 {
 	Jacobian.SetSize(UI->mData->mSelectedModel->GetHandleCount() * 3,UI->mData->mSelectedModel->GetDofCount());
-
-	
-
 	Jacobian.MakeZero();
 	//cout << "Initial Jacobian " << Jacobian << "\n";
 	int frame = 0;
 	solve=true;
 	
 	w = CalculateWeights(frame);
-	cout << "FQ " << CalculateFQ(frame) << "\n";
+	//cout << "FQ " << CalculateFQ(frame) << "\n";
 	if(CalculateFQ(frame) > 0.001){
 		//loop over the handles
 		Vecd pFpq = Vecd(UI->mData->mSelectedModel->GetDofCount());
 		pFpq.MakeZero();
 		
-		cout << "Weights " << w << "\n";
+		//cout << "Weights " << w << "\n";
 
 
 		for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
@@ -110,13 +107,12 @@ void Solution(void *v)
 			//dFdQ = dFdq + (wi * (Jti*Ci))
 			//cout << "Jacobian " << Jti << "\n";
 			//cout << "C " << CalculateC(handle) << "\n";
-			pFpq += (w[handle]) * (Jti * CalculateCVec(handle,frame));
-			//pFpq += (Jti * CalculateCVec(handle,frame));
+			//pFpq += (w[handle]) * (Jti * CalculateCVec(handle,frame));
+			//cout << " C vector " << CalculateCVec(handle,frame) << "\n";
+			pFpq += (Jti * CalculateCVec(handle,frame));
 			//cout << "Jacobian summed ";
 		}
 		pFpq *= 2;
-
-
 		Vecd qNew = Vecd(pFpq.Elts());
 		//cout << "Q: ";
 		for(int i=0; i<pFpq.Elts(); i++){
@@ -125,7 +121,7 @@ void Solution(void *v)
 			qNew[i] = qOld - alpha * pFpq[i];
 		}
 		//cout << "\n";
-		cout << " Q new " << qNew << "\n";
+		//cout << " Q new " << qNew << "\n";
 		UI->mData->mSelectedModel->SetDofs(qNew);
 		Fl::add_timeout(0.001,Solution);
 	}
@@ -163,12 +159,16 @@ void LoadC3d(void *v)
   UI->mGLWindow->mShowConstraints = true;
   UI->mShowConstr_but->value(1);
 }
- Vec3d CalculateC(int handle, int frame){
+Vec3d CalculateC(int handle, int frame){
 	 Marker* mark = UI->mData->mSelectedModel->mHandleList[handle];
+	 
 	 Vec3d pBar = UI->mData->mSelectedModel->mOpenedC3dFile->GetMarkerPos(frame,handle);
+	 //cout << "pBar is " << pBar << "\n";
+	 if(pBar == Vec3d(0,0,0))
+		 return Vec3d(0,0,0);
 	 return mark->mGlobalPos-pBar;
 	 //cVals.push_back(mark->mGlobalPos-pBar);
- }
+}
 
  Vecd CalculateCVec(int handle, int frame){
 	 Vecd ret = Vecd(UI->mData->mSelectedModel->GetHandleCount() * 3);
@@ -306,11 +306,14 @@ void ComputeJ(int handle){
 double CalculateFQ(int frame){
 	double total = 0;
 	for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
+		//cout << "Calculating FQ for handle " << handle << "\n";
+		//cout << "C for handle is " << CalculateC(handle,frame) << "\n";
 		double length = len(CalculateC(handle,frame));
 		double error = length * length;
 		error *= w[handle];
 		total += error;
 	}
+	//cout << "Total error is " << total << "\n";
 	return total;
 }
 
