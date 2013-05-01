@@ -141,7 +141,7 @@ void Phylter_Fl_Gl_Window::draw()
   Origin o;
   o.Draw();
   if(solve){
-	  drawHandles();
+	 // drawHandles();
 	  drawC();
   }
   if(mShowViz){
@@ -364,7 +364,7 @@ void Phylter_Fl_Gl_Window::DrawC3dMarkers()
   }
 }
 void drawHandles(){
-	/**
+	
 	int nHandle = UI->mData->mSelectedModel->mOpenedC3dFile->GetHandleCount();
 	
 	for(int i=0;i<handles.size();i++){
@@ -377,10 +377,10 @@ void drawHandles(){
     temp.Draw();
     glPopMatrix();
 	}
-	**/
+	
 }
 void drawC(){
-	/**
+	
 	int currFrame = UI->mFrameCounter_cou->value();
 	for(int i=0;i<cVals.size();i++){
 		Vec3d pos = UI->mData->mSelectedModel->mOpenedC3dFile->GetMarkerPos(currFrame, i);
@@ -390,9 +390,5 @@ void drawC(){
 		glVertex3f(pos[0], pos[1], pos[2]); // object coord
 		glVertex3f(pos[0]+cPos[0],pos[1]+ cPos[1], pos[2]+cPos[2]); // ending point of the line
 		glEnd( );
-	
-
-	
 	}
-	**/
 }

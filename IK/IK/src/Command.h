@@ -13,11 +13,12 @@ void LoadModel(void*);
 void LoadC3d(void*);
 void Exit(void*);
 void Solution(void*);
-double CalculateFQ();
+double CalculateFQ(int frame);
+double CalculateFQ(int handle, int frame);
 
-Vec3d CalculateC(int handle);
-Vecd CalculateCVec(int handle);
-double CalculateFQ(int handle);
+Vec3d CalculateC(int handle, int frame);
+Vecd CalculateCVec(int handle, int frame);
+Vecd CalculateWeights(int frame);
 bool KeepGoing();
 void ComputeJ(int handle);
 #endif

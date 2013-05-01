@@ -38,6 +38,7 @@ TMat Jacobian = TMat();
 extern vector<Vec3d> handles;
 vector<Vec3d> cVals= vector<Vec3d>();
 
+
 double alpha = 0.02;
 
 void LoadModel(void *v)
@@ -73,16 +74,22 @@ void LoadModel(void *v)
  
 void Solution(void *v)
 {
-	Jacobian.SetSize(UI->mData->mSelectedModel->GetHandleCount() * 3,UI->mData->mSelectedModel->GetDofCount()); 
+	Jacobian.SetSize(UI->mData->mSelectedModel->GetHandleCount() * 3,UI->mData->mSelectedModel->GetDofCount());
+
+	//weight vector
+	Vecd w = Vecd(UI->mData->mSelectedModel->GetHandleCount());
+
 	Jacobian.MakeZero();
 	//cout << "Initial Jacobian " << Jacobian << "\n";
-
+	int frame = 30;
 	solve=true;
-	//cout << "FQ " << CalculateFQ() << "\n";
-	if(CalculateFQ() > 100){
+	cout << "FQ " << CalculateFQ(frame) << "\n";
+	if(CalculateFQ(frame) > 0.1){
 		//loop over the handles
 		Vecd pFpq = Vecd(UI->mData->mSelectedModel->GetDofCount());
 		pFpq.MakeZero();
+		w = CalculateWeights(frame);
+		cout << "Weights " << w << "\n";
 
 
 		for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
@@ -101,7 +108,7 @@ void Solution(void *v)
 			//dFdQ = dFdq + (Jti*Ci)
 			//cout << "Jacobian " << Jti << "\n";
 			//cout << "C " << CalculateC(handle) << "\n";
-			pFpq += (Jti * CalculateCVec(handle));
+			pFpq += (w[handle]) * (Jti * CalculateCVec(handle,frame));
 			//cout << "Jacobian summed ";
 		}
 		pFpq *= 2;
@@ -117,7 +124,7 @@ void Solution(void *v)
 		//cout << "\n";
 		//cout << " Q new " << qNew << "\n";
 		UI->mData->mSelectedModel->SetDofs(qNew);
-		Fl::add_timeout(0.001,Solution);
+		//Fl::add_timeout(0.001,Solution);
 	}
 	//cout << "Finished solving \n";
 }
@@ -153,23 +160,23 @@ void LoadC3d(void *v)
   UI->mGLWindow->mShowConstraints = true;
   UI->mShowConstr_but->value(1);
 }
- Vec3d CalculateC(int handle){
+ Vec3d CalculateC(int handle, int frame){
 	 Marker* mark = UI->mData->mSelectedModel->mHandleList[handle];
-	 Vec3d pBar = UI->mData->mSelectedModel->mOpenedC3dFile->GetMarkerPos(0,handle);
+	 Vec3d pBar = UI->mData->mSelectedModel->mOpenedC3dFile->GetMarkerPos(frame,handle);
 	 return mark->mGlobalPos-pBar;
 	 //cVals.push_back(mark->mGlobalPos-pBar);
  }
 
- Vecd CalculateCVec(int handle){
+ Vecd CalculateCVec(int handle, int frame){
 	 Vecd ret = Vecd(UI->mData->mSelectedModel->GetHandleCount() * 3);
-	 Vec3d cvals = CalculateC(handle);
+	 Vec3d cvals = CalculateC(handle,frame);
 	 for(int i=0; i<3; i++){
 		 ret[3*handle + i] = cvals[i]; 
 	 }
 	 return ret;
 
  }
- void CalculateC(){
+void CalculateC(){
 	Marker* mark=UI->mData->mSelectedModel->mHandleList[0];
 	Vec3d pBar=UI->mData->mSelectedModel-> mOpenedC3dFile->GetMarkerPos(0,0);
 	Vec3d handlePos=mark->mGlobalPos;
@@ -291,89 +298,19 @@ void ComputeJ(int handle){
 		u *= node->mCurrentTransform;
 		node = node->mParentNode;
 	}
-	/**
-	while(node != NULL){
-		Mat4d parent = node->mParentTransform;
-		//loop over the transforms for this node
-		for(int trans=0; trans<node->mTransforms.size(); trans++){
-			Transform* current = node->mTransforms[trans];
-			
- 
-			//determine if the current transform is a dof
-			if(current->IsDof()){
-				//loop over the DOF's in the transform
-				for(int dof=0; dof<current->GetDofCount(); dof++){
-					//compute partial derivative
-					Mat4d partial = current->GetDeriv(dof);
-					//cout << "Deriv is " << partial << "\n";
-					Mat4d Jim = parent;
-
-
-
-
-					//compute jacobian entry & u (as matrices)
-					for(int i=0; i<node->mTransforms.size(); i++){
-						if(i == trans){
-							Jim *= partial;
-						}else{
-							Jim *= node->mTransforms[i]->GetTransform();
-						}
-						um *= node->mTransforms[i]->GetTransform();
-					}
- 
-					
-					//multiply by offset -- only if at the foot joint
-					if(NeedOffset == 1){
-						//cout << "Offeset " <<mark->mOffset << "\n";
-						Ji = Jim * Vec4d(mark->mOffset,1);
-						u = um * Vec4d(mark->mOffset,1);
-					}
-					else{
-						u = u * um;
-						Ji = Jim * u;
-					}
- 
- 
-					//compute row & column of entry
-					int column = current->GetDof(dof)->mId;
- 
-					//set jacobian column
-					for(int j=0; j<3; j++){\
-						//Jacobian[j][column] = Ji[j];
-						Jacobian[(3*handle) + j][column] = Ji[j];
-					}
- 
-
-					
-				}//end DOF loop
- 
- 
- 
-			}//end dof check
- 
- 
-		}//end transform loop
- 
- 
-		NeedOffset = 0;
-		node = node->mParentNode;
-	}//end while
-
-	**/
-
 }
-double CalculateFQ(){
+double CalculateFQ(int frame){
 	double total = 0;
 	for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
-		double length = len(CalculateC(handle));
+		double length = len(CalculateC(handle,frame));
 		double error = length * length;
 		total += error;
 	}
 	return total;
 }
 
-double CalculateFQ(int handle){
-	double length = len(CalculateC(handle));
+double CalculateFQ(int handle, int frame){
+	double length = len(CalculateC(handle,frame));
 	double error = length * length;
 	return error;
 }
@@ -385,4 +322,16 @@ bool KeepGoing(){
 			return true;
 	}
 	return false;
+}
+
+Vecd CalculateWeights(int frame){
+	Vecd ret = Vecd(UI->mData->mSelectedModel->GetHandleCount());
+	for(int i=0; i<UI->mData->mSelectedModel->GetHandleCount(); i++){
+		cout << "Length of c " << len(CalculateC(i,frame)) << "\n";
+
+		ret[i] = CalculateFQ(i,frame) - 0.01;
+		if(ret[i] < 0)
+			ret[i] = 0;
+	}
+	return ret;
 }
