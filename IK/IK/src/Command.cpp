@@ -34,6 +34,7 @@ extern RealTimeIKUI *UI;
 bool solve = false;
 
 Vec3d c=Vec3d();
+Vecd w = Vecd();
 TMat Jacobian = TMat();
 extern vector<Vec3d> handles;
 vector<Vec3d> cVals= vector<Vec3d>();
@@ -76,19 +77,20 @@ void Solution(void *v)
 {
 	Jacobian.SetSize(UI->mData->mSelectedModel->GetHandleCount() * 3,UI->mData->mSelectedModel->GetDofCount());
 
-	//weight vector
-	Vecd w = Vecd(UI->mData->mSelectedModel->GetHandleCount());
+	
 
 	Jacobian.MakeZero();
 	//cout << "Initial Jacobian " << Jacobian << "\n";
-	int frame = 30;
+	int frame = 0;
 	solve=true;
+	
+	w = CalculateWeights(frame);
 	cout << "FQ " << CalculateFQ(frame) << "\n";
-	if(CalculateFQ(frame) > 0.1){
+	if(CalculateFQ(frame) > 0.001){
 		//loop over the handles
 		Vecd pFpq = Vecd(UI->mData->mSelectedModel->GetDofCount());
 		pFpq.MakeZero();
-		w = CalculateWeights(frame);
+		
 		cout << "Weights " << w << "\n";
 
 
@@ -105,10 +107,11 @@ void Solution(void *v)
 			TMat Jti = trans(Jacobian); // Jti is transpose of jacobian at entry i
 			//cout << "Jacobian transposed ";
 
-			//dFdQ = dFdq + (Jti*Ci)
+			//dFdQ = dFdq + (wi * (Jti*Ci))
 			//cout << "Jacobian " << Jti << "\n";
 			//cout << "C " << CalculateC(handle) << "\n";
 			pFpq += (w[handle]) * (Jti * CalculateCVec(handle,frame));
+			//pFpq += (Jti * CalculateCVec(handle,frame));
 			//cout << "Jacobian summed ";
 		}
 		pFpq *= 2;
@@ -122,9 +125,9 @@ void Solution(void *v)
 			qNew[i] = qOld - alpha * pFpq[i];
 		}
 		//cout << "\n";
-		//cout << " Q new " << qNew << "\n";
+		cout << " Q new " << qNew << "\n";
 		UI->mData->mSelectedModel->SetDofs(qNew);
-		//Fl::add_timeout(0.001,Solution);
+		Fl::add_timeout(0.001,Solution);
 	}
 	//cout << "Finished solving \n";
 }
@@ -169,6 +172,7 @@ void LoadC3d(void *v)
 
  Vecd CalculateCVec(int handle, int frame){
 	 Vecd ret = Vecd(UI->mData->mSelectedModel->GetHandleCount() * 3);
+	 ret.MakeZero();
 	 Vec3d cvals = CalculateC(handle,frame);
 	 for(int i=0; i<3; i++){
 		 ret[3*handle + i] = cvals[i]; 
@@ -304,6 +308,7 @@ double CalculateFQ(int frame){
 	for(int handle = 0; handle < UI->mData->mSelectedModel->GetHandleCount(); handle++){
 		double length = len(CalculateC(handle,frame));
 		double error = length * length;
+		error *= w[handle];
 		total += error;
 	}
 	return total;
@@ -327,11 +332,9 @@ bool KeepGoing(){
 Vecd CalculateWeights(int frame){
 	Vecd ret = Vecd(UI->mData->mSelectedModel->GetHandleCount());
 	for(int i=0; i<UI->mData->mSelectedModel->GetHandleCount(); i++){
-		cout << "Length of c " << len(CalculateC(i,frame)) << "\n";
+		//cout << "Length of c " << len(CalculateC(i,frame)) << "\n";
 
-		ret[i] = CalculateFQ(i,frame) - 0.01;
-		if(ret[i] < 0)
-			ret[i] = 0;
+		ret[i] = 1;
 	}
 	return ret;
 }
